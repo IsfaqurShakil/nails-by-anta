@@ -1,4 +1,3 @@
-
 :root {
   --espresso: #30241f;
   --deep: #241b18;
@@ -2222,4 +2221,19 @@ button {
   .hero-image .hero-slide img {
     transform: scale(var(--zoom-m));
   }
+}
+
+
+/* =========================================================
+   HERO ZOOM — FINAL (script.js sets the real image size)
+   Zoom is now applied to the photo itself, not the frame.
+========================================================= */
+.hero-image .hero-slide img,
+.hero-image .hero-slide img {
+  transform: none !important;
+  inset: auto !important;
+  max-width: none !important;
+}
+@media (max-width: 850px) {
+  .hero-image .hero-slide img { transform: none !important; }
 }

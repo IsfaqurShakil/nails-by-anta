@@ -182,6 +182,48 @@
     heroSlideTimer = window.setInterval(() => showHeroSlide(heroSlideIndex + 1), HERO_INTERVAL);
   }
 
+  /* True zoom-out: the photo is drawn at (cover size x zoom) instead of being cropped to fill.
+     zoom 1 = fills the frame (old look), 0.8 = shows more of the photo.
+     Any space left at the edges is filled by the blurred copy of the same photo (CSS). */
+  function layoutHeroImages() {
+    if (!heroSlider || !heroSlides.length) return;
+    const isMobile = window.matchMedia("(max-width: 850px)").matches;
+    const rootStyle = getComputedStyle(heroSlider);
+    const zoom = parseFloat(rootStyle.getPropertyValue(isMobile ? "--zoom-m" : "--zoom-d")) || 1;
+    const boxW = heroSlider.clientWidth;
+    const boxH = heroSlider.clientHeight;
+    if (!boxW || !boxH) return;
+
+    heroSlides.forEach(slide => {
+      const img = $("img", slide);
+      if (!img || !img.naturalWidth) return;
+
+      const slideStyle = getComputedStyle(slide);
+      const pos = (slideStyle.getPropertyValue(isMobile ? "--pos-m" : "--pos-d") || "50% 50%").trim().split(/\s+/);
+      const px = (parseFloat(pos[0]) || 50) / 100;
+      const py = (parseFloat(pos[1]) || 50) / 100;
+
+      const cover = Math.max(boxW / img.naturalWidth, boxH / img.naturalHeight);
+      const scale = cover * zoom;
+      const w = img.naturalWidth * scale;
+      const h = img.naturalHeight * scale;
+
+      img.style.setProperty("width", `${w}px`, "important");
+      img.style.setProperty("height", `${h}px`, "important");
+      img.style.setProperty("left", `${(boxW - w) * px}px`, "important");
+      img.style.setProperty("top", `${(boxH - h) * py}px`, "important");
+    });
+  }
+
+  heroSlides.forEach(slide => {
+    const img = $("img", slide);
+    if (!img) return;
+    if (img.complete) layoutHeroImages();
+    else img.addEventListener("load", layoutHeroImages);
+  });
+  window.addEventListener("resize", layoutHeroImages);
+  window.addEventListener("load", layoutHeroImages);
+
   if (heroSlides.length > 1) {
     showHeroSlide(0);
 
