@@ -2193,3 +2193,33 @@ button {
         rgba(30,21,18,.30) 100%) !important;
   }
 }
+
+
+/* =========================================================
+   HERO ZOOM CONTROL (keep at the very bottom)
+   --zoom-d / --zoom-m : 1 = full cover, 0.8 = 20% zoomed out.
+   The edges are filled with a soft blurred copy of the same photo,
+   so zooming out never leaves an empty gap.
+========================================================= */
+.hero-image {
+  --zoom-d: .8;
+  --zoom-m: .8;
+}
+.hero-image .hero-slide::before {
+  content: "";
+  position: absolute;
+  inset: -40px;
+  background-image: var(--bg);
+  background-size: cover;
+  background-position: center;
+  filter: blur(28px) brightness(.8) saturate(1.1);
+}
+.hero-image .hero-slide img {
+  transform: scale(var(--zoom-d));
+  transform-origin: center center;
+}
+@media (max-width: 850px) {
+  .hero-image .hero-slide img {
+    transform: scale(var(--zoom-m));
+  }
+}
