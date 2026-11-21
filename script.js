@@ -155,43 +155,44 @@
   });
 
   /* Hero image slider.
-     Uses image paths already present in the supplied homepage HTML.
-     Foreground image uses object-fit: contain so secondary slides are not cropped. */
-  const heroImage = $(".hero-image img");
-  const heroImageWrap = $(".hero-image");
-
-  const heroSlides = [
-    "images/hero-nails.png"
-  ];
+     4 slides cross-fade automatically. Each slide uses object-fit: cover (no empty gaps),
+     and its framing is controlled by --pos-d (desktop) / --pos-m (mobile) in index.html. */
+  const HERO_INTERVAL = 5000; // ms per slide
+  const heroSlider = $("#heroSlider");
+  const heroSlides = heroSlider ? $$(".hero-slide", heroSlider) : [];
+  const heroCounter = $("#heroCounter");
+  const pad = n => String(n).padStart(2, "0");
 
   let heroSlideIndex = 0;
   let heroSlideTimer = null;
 
-  function changeHeroSlide(nextIndex) {
-    if (!heroImage || !heroImageWrap) return;
-    const nextSrc = heroSlides[nextIndex];
-    const preload = new Image();
-
-    preload.onload = () => {
-      heroImage.classList.add("is-changing");
-      window.setTimeout(() => {
-        heroImage.src = nextSrc;
-        heroImageWrap.style.setProperty("--hero-slide-bg", `url("${nextSrc}")`);
-        heroImage.classList.remove("is-changing");
-      }, 220);
-    };
-
-    preload.onerror = () => {
-      // If an optional slide is missing, skip it and retain the current working image.
-      heroSlideIndex = (nextIndex + 1) % heroSlides.length;
-    };
-
-    preload.src = nextSrc;
+  function showHeroSlide(index) {
+    heroSlideIndex = (index + heroSlides.length) % heroSlides.length;
+    heroSlides.forEach((slide, i) => slide.classList.toggle("is-active", i === heroSlideIndex));
+    if (heroCounter) heroCounter.textContent = `${pad(heroSlideIndex + 1)} — ${pad(heroSlides.length)}`;
   }
 
-  if (heroImage && heroImageWrap) {
-    heroImageWrap.style.setProperty("--hero-slide-bg", `url("${heroSlides[0]}")`);
-    // Keep the selected hero image static; no unrelated gallery photos rotate here.
+  function stopHeroSlider() {
+    if (heroSlideTimer) window.clearInterval(heroSlideTimer);
+    heroSlideTimer = null;
+  }
+
+  function startHeroSlider() {
+    stopHeroSlider();
+    heroSlideTimer = window.setInterval(() => showHeroSlide(heroSlideIndex + 1), HERO_INTERVAL);
+  }
+
+  if (heroSlides.length > 1) {
+    showHeroSlide(0);
+
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      startHeroSlider();
+      // Pause while the tab is hidden so slides do not jump when you come back.
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) stopHeroSlider();
+        else startHeroSlider();
+      });
+    }
   }
 
   /* Scroll reveal: side-to-centre movement with a stagger for cards. */

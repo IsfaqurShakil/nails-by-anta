@@ -2133,3 +2133,63 @@ button {
 @media (max-width: 850px) {
   .hero-image img { object-position: center center !important; }
 }
+
+
+/* =========================================================
+   HERO SLIDER — FINAL (keep this block at the very bottom)
+   - 4 slides cross-fade; every image fills the hero (object-fit: cover)
+   - No blurred side bars, no empty gaps, no stretched images
+   - Framing per photo: --pos-d (desktop) and --pos-m (mobile) in index.html
+========================================================= */
+.hero-image {
+  background: #241b18 !important;
+  overflow: hidden;
+}
+.hero-image::before { display: none !important; }
+
+.hero-image .hero-slide {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 1.1s ease;
+  pointer-events: none;
+}
+.hero-image .hero-slide.is-active {
+  opacity: 1;
+  z-index: 1;
+}
+.hero-image .hero-slide img {
+  position: absolute !important;
+  inset: 0;
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none;
+  object-fit: cover !important;
+  object-position: var(--pos-d, 50% 50%) !important;
+  opacity: 1 !important;
+  transition: none !important;
+}
+
+/* Tablet + mobile: photo fills the top part of the hero and fades softly
+   into the dark brown below, where the text sits. No gap at the top. */
+@media (max-width: 850px) {
+  .hero-image {
+    inset: 0 0 auto 0 !important;
+    height: 72% !important;
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 72%, transparent 100%);
+            mask-image: linear-gradient(to bottom, #000 0%, #000 72%, transparent 100%);
+  }
+  .hero-image .hero-slide img {
+    object-position: var(--pos-m, 50% 50%) !important;
+  }
+  .hero-shade {
+    background:
+      linear-gradient(0deg,
+        rgba(30,21,18,.97) 0%,
+        rgba(30,21,18,.80) 38%,
+        rgba(30,21,18,.22) 75%,
+        rgba(30,21,18,.30) 100%) !important;
+  }
+}
